@@ -10,7 +10,6 @@ from .layers import CustomDropout
 from .segmentation import DecoderBlock
 
 
-
 class MultiTaskPerceptionModel(nn.Module):
     """Shared-backbone multi-task model.
 
@@ -39,7 +38,6 @@ class MultiTaskPerceptionModel(nn.Module):
         self.encoder = VGG11(num_classes=1000, in_channels=in_channels, dropout_p=dropout_p)
 
         # ── Classification head ────────────────────────────────────────────────
-        # Matches ClassificationHead in classification.py exactly
         self.cls_pool = nn.AdaptiveAvgPool2d((7, 7))
         self.cls_flatten = nn.Flatten()
         self.cls_head = nn.Sequential(
@@ -53,7 +51,6 @@ class MultiTaskPerceptionModel(nn.Module):
         )
 
         # ── Localization head ──────────────────────────────────────────────────
-        # Matches LocalizationHead in localization.py exactly
         self.loc_pool = nn.AdaptiveAvgPool2d((7, 7))
         self.loc_flatten = nn.Flatten()
         self.loc_head = nn.Sequential(
@@ -77,54 +74,54 @@ class MultiTaskPerceptionModel(nn.Module):
         # ── Load pretrained checkpoints if available ───────────────────────────
         self._load_checkpoints()
 
-def _load_checkpoints(self):
-    """Download and load saved checkpoints using gdown."""
-    import gdown
+    def _load_checkpoints(self):
+        """Download and load saved checkpoints using gdown."""
+        import gdown
 
-    os.makedirs("checkpoints", exist_ok=True)
+        os.makedirs("checkpoints", exist_ok=True)
 
-    cls_ckpt = os.path.join("checkpoints", "classifier.pth")
-    loc_ckpt = os.path.join("checkpoints", "localizer.pth")
-    seg_ckpt = os.path.join("checkpoints", "unet.pth")
+        cls_ckpt = os.path.join("checkpoints", "classifier.pth")
+        loc_ckpt = os.path.join("checkpoints", "localizer.pth")
+        seg_ckpt = os.path.join("checkpoints", "unet.pth")
 
-    # Download from Google Drive if not already present
-    if not os.path.exists(cls_ckpt):
-        gdown.download(id="1rzqrc2Darsb9fxwRml8AyfoluYpOjO0a", output=cls_ckpt, quiet=False)
-    if not os.path.exists(loc_ckpt):
-        gdown.download(id="1PeM5wHoAeXgiI5AKvTsMEH5qQdl0Fw7h", output=loc_ckpt, quiet=False)
-    if not os.path.exists(seg_ckpt):
-        gdown.download(id="1sjVCkwDXd4NHBw_DTuvCfCpcEAsL37Rq", output=seg_ckpt, quiet=False)
+        # Download from Google Drive if not already present
+        if not os.path.exists(cls_ckpt):
+            gdown.download(id="1rzqrc2Darsb9fxwRml8AyfoluYpOjO0a", output=cls_ckpt, quiet=False)
+        if not os.path.exists(loc_ckpt):
+            gdown.download(id="1PeM5wHoAeXgiI5AKvTsMEH5qQdl0Fw7h", output=loc_ckpt, quiet=False)
+        if not os.path.exists(seg_ckpt):
+            gdown.download(id="1sjVCkwDXd4NHBw_DTuvCfCpcEAsL37Rq", output=seg_ckpt, quiet=False)
 
-    # ── Load classifier checkpoint ─────────────────────────────────────────
-    if os.path.exists(cls_ckpt):
-        state = torch.load(cls_ckpt, map_location="cpu")
-        enc_state = {k[len("encoder."):]: v
-                     for k, v in state.items() if k.startswith("encoder.")}
-        if enc_state:
-            self.encoder.load_state_dict(enc_state, strict=False)
-        cls_state = {k[len("head.classifier."):]: v
-                     for k, v in state.items() if k.startswith("head.classifier.")}
-        if cls_state:
-            self.cls_head.load_state_dict(cls_state, strict=False)
+        # ── Load classifier checkpoint ─────────────────────────────────────────
+        if os.path.exists(cls_ckpt):
+            state = torch.load(cls_ckpt, map_location="cpu")
+            enc_state = {k[len("encoder."):]: v
+                         for k, v in state.items() if k.startswith("encoder.")}
+            if enc_state:
+                self.encoder.load_state_dict(enc_state, strict=False)
+            cls_state = {k[len("head.classifier."):]: v
+                         for k, v in state.items() if k.startswith("head.classifier.")}
+            if cls_state:
+                self.cls_head.load_state_dict(cls_state, strict=False)
 
-    # ── Load localizer checkpoint ──────────────────────────────────────────
-    if os.path.exists(loc_ckpt):
-        state = torch.load(loc_ckpt, map_location="cpu")
-        loc_state = {k[len("head.regressor."):]: v
-                     for k, v in state.items() if k.startswith("head.regressor.")}
-        if loc_state:
-            self.loc_head.load_state_dict(loc_state, strict=False)
+        # ── Load localizer checkpoint ──────────────────────────────────────────
+        if os.path.exists(loc_ckpt):
+            state = torch.load(loc_ckpt, map_location="cpu")
+            loc_state = {k[len("head.regressor."):]: v
+                         for k, v in state.items() if k.startswith("head.regressor.")}
+            if loc_state:
+                self.loc_head.load_state_dict(loc_state, strict=False)
 
-    # ── Load unet checkpoint ───────────────────────────────────────────────
-    if os.path.exists(seg_ckpt):
-        state = torch.load(seg_ckpt, map_location="cpu")
-        seg_state = {}
-        for k, v in state.items():
-            if k.startswith("dec") or k.startswith("final_conv"):
-                new_k = k.replace("final_conv.", "seg_final.")
-                seg_state[new_k] = v
-        if seg_state:
-            self.load_state_dict(seg_state, strict=False)
+        # ── Load unet checkpoint ───────────────────────────────────────────────
+        if os.path.exists(seg_ckpt):
+            state = torch.load(seg_ckpt, map_location="cpu")
+            seg_state = {}
+            for k, v in state.items():
+                if k.startswith("dec") or k.startswith("final_conv"):
+                    new_k = k.replace("final_conv.", "seg_final.")
+                    seg_state[new_k] = v
+            if seg_state:
+                self.load_state_dict(seg_state, strict=False)
 
     def forward(self, x: torch.Tensor):
         """Forward pass.
@@ -144,9 +141,9 @@ def _load_checkpoints(self):
         cls_feat = self.cls_flatten(self.cls_pool(bottleneck))
         cls_logits = self.cls_head(cls_feat)
 
-        # Localization - scale sigmoid [0,1] -> pixel space
+        # Localization
         loc_feat = self.loc_flatten(self.loc_pool(bottleneck))
-        boxes = self.loc_head(loc_feat)  # pixel-space output (x_c, y_c, w, h)
+        boxes = self.loc_head(loc_feat)
 
         # Segmentation
         d4 = self.dec4(bottleneck, features["block4"])
