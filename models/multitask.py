@@ -86,11 +86,11 @@ class MultiTaskPerceptionModel(nn.Module):
 
         # Download from Google Drive if not already present
         if not os.path.exists(cls_ckpt):
-            gdown.download(id="1rzqrc2Darsb9fxwRml8AyfoluYpOjO0a", output=cls_ckpt, quiet=False)
+            gdown.download(id="1juhe_Mwmt4NI5_WvPyUq7cCvNsktYRVd", output=cls_ckpt, quiet=False)
         if not os.path.exists(loc_ckpt):
-            gdown.download(id="1PeM5wHoAeXgiI5AKvTsMEH5qQdl0Fw7h", output=loc_ckpt, quiet=False)
+            gdown.download(id="1johcAcZbUsFnCIQw6izaGXfp-OG0M2oE", output=loc_ckpt, quiet=False)
         if not os.path.exists(seg_ckpt):
-            gdown.download(id="1sjVCkwDXd4NHBw_DTuvCfCpcEAsL37Rq", output=seg_ckpt, quiet=False)
+            gdown.download(id="1JAWbFnaZyFdPiHbLO1zcXyxtXCTyoo4l", output=seg_ckpt, quiet=False)
 
         # ── Load classifier checkpoint ─────────────────────────────────────────
         if os.path.exists(cls_ckpt):
